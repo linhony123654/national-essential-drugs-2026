@@ -68,17 +68,26 @@ export function DrugsProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     let cancelled = false
-    fetch('/drugs.json')
-      .then((r) => {
-        if (!r.ok) throw new Error(`HTTP ${r.status}`)
-        return r.json()
-      })
-      .then((data: DrugsData) => {
-        if (!cancelled) setState({ data, loading: false, error: null })
-      })
-      .catch((e: Error) => {
-        if (!cancelled) setState({ data: null, loading: false, error: e.message })
-      })
+    const get = async <T,>(url: string): Promise<T> => {
+      const r = await fetch(url)
+      if (!r.ok) throw new Error(`HTTP ${r.status} @ ${url}`)
+      return r.json() as Promise<T>
+    }
+    ;(async () => {
+      // 数据分片加载：/data/meta.json + /data/index.json 列出的各 shard 并行拉取后合并
+      const [meta, idx] = await Promise.all([
+        get<Omit<DrugsData, 'chem' | 'tcm'>>('/data/meta.json'),
+        get<{ chemShards: string[]; tcmShards: string[] }>('/data/index.json'),
+      ])
+      const [chemParts, tcmParts] = await Promise.all([
+        Promise.all(idx.chemShards.map((s) => get<ChemDrug[]>(`/data/${s}`))),
+        Promise.all(idx.tcmShards.map((s) => get<TcmDrug[]>(`/data/${s}`))),
+      ])
+      const data: DrugsData = { ...meta, chem: chemParts.flat(), tcm: tcmParts.flat() }
+      if (!cancelled) setState({ data, loading: false, error: null })
+    })().catch((e: Error) => {
+      if (!cancelled) setState({ data: null, loading: false, error: e.message })
+    })
     return () => {
       cancelled = true
     }
