@@ -21,7 +21,7 @@ const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1]
 
 /** catStats entries are keyed by `name` in drugs.json; fall back to `cat`. */
 function statName(s: CatStat): string {
-  return (s as unknown as { name?: string }).name ?? s.cat
+  return (s as unknown as { name?: string }).name ?? ''
 }
 
 /* ------------------------------------------------------------------ */

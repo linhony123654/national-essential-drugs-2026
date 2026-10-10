@@ -34,16 +34,23 @@ export interface DrugsMeta {
 }
 
 export interface CatStat {
-  cat: string
+  /** 大类名称（drugs.json 实际键为 name） */
+  name: string
   count: number
+}
+
+export interface NoteItem {
+  id: string
+  no: string
+  text: string
 }
 
 export interface DrugsData {
   meta: DrugsMeta
   chem: ChemDrug[]
   tcm: TcmDrug[]
-  notesChem: string[]
-  notesTcm: string[]
+  notesChem: NoteItem[]
+  notesTcm: NoteItem[]
   catStatsChem: CatStat[]
   catStatsTcm: CatStat[]
 }
