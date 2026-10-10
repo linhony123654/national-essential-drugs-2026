@@ -143,7 +143,7 @@ function HeroSection({ ready }: { ready: boolean }) {
   return (
     <section ref={rootRef} className="relative flex min-h-[100dvh] flex-col overflow-hidden">
       <img
-        src="/hero-texture.png"
+        src="/hero-texture.svg"
         alt=""
         className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-35"
       />
